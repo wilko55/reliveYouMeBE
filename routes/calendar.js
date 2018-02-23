@@ -73,10 +73,10 @@ module.exports = (app, passport) => {
         const year = req.params.year || moment().format('YYYY');
 
         const daysInMonth = getDaysInMonth(month, year);
-        const firstDayOfMonth = getFirstDayOfMonth();
+        const firstDayOfMonth = getFirstDayOfMonth(month, year);
         const calendarData = generateMonthArr(daysInMonth, firstDayOfMonth, month, year);
 
-        const availability = req.user.availability[`${month}-${year}`];
+        const availability = req.user.availability ? req.user.availability[`${month}-${year}`] : {};
 
         Event.find({ teacherId: req.user.id, 'date.month': month }, (err, result) => {
             if (err) {
@@ -138,7 +138,8 @@ module.exports = (app, passport) => {
 
             // package data in right form
             const key = `${month}-${year}`;
-            const mergedAvailability = Object.assign({}, req.user.availability[key], availability);
+            const currentAvailability = req.user.availability ? req.user.availability[key] : {};
+            const mergedAvailability = Object.assign({}, currentAvailability, availability);
             const toUpdate = {};
             toUpdate[key] = mergedAvailability;
 

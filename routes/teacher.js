@@ -11,8 +11,7 @@ module.exports = (app, passport, jwtOptions) => {
             email: req.body.email,
             name: req.body.name,
             regNumber: req.body.regNumber,
-            password: bCrypt.hashSync(req.body.password, bCrypt.genSaltSync(8), null),
-            availability: {}
+            password: bCrypt.hashSync(req.body.password, bCrypt.genSaltSync(8), null)
         });
 
         newTeacher.save((err, teacher) => {
