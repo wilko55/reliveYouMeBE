@@ -18,6 +18,7 @@ module.exports = (app, passport, jwtOptions) => {
                     if (!bCrypt.compareSync(password, user.password)) {
                         res.status(401).json({ message: 'Incorrect password' });
                     } else {
+                        console.log('user found!', user)
                         const payload = { id: user.id };
                         const token = jwt.sign(payload, jwtOptions.secretOrKey, { expiresIn: '30m' });
                         res.status(200).json({ message: 'ok', token });

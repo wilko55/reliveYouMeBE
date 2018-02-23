@@ -3,9 +3,8 @@
 const express = require('express');
 
 const app = express();
-const config = require('./config').config();
-
 const bodyParser = require('body-parser');
+const db = require('./data/db');
 const Teacher = require('./data/teacher');
 const School = require('./data/school');
 
@@ -17,7 +16,7 @@ const JwtStrategy = passportJWT.Strategy;
 
 const jwtOptions = {};
 jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderWithScheme('jwt');
-jwtOptions.secretOrKey = config.jwtSecret;
+jwtOptions.secretOrKey = 'tasmanianDevil';
 
 const helmet = require('helmet');
 

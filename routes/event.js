@@ -2,7 +2,6 @@
 
 const Event = require('../data/event');
 const moment = require('moment');
-const _ = require('lodash');
 
 module.exports = (app, passport) => {
     app.post('/event', passport.authenticate('jwt', { session: false }), (req, res) => {

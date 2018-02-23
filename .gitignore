@@ -1,0 +1,31 @@
+# Logs
+logs
+*.log
+logs/*
+
+# Runtime data
+pids
+*.pid
+*.seed
+dump.rdb
+
+# Coverage directory used by tools like istanbul
+coverage
+lib-cov
+
+# Compiled binary addons (http://nodejs.org/api/addons.html)
+build/Release
+
+# Dependency directory
+node_modules
+
+config.json
+.gitignore
+.vscode/launch.json
+
+.DS_Store
+.idea/*
+Dockerfile
+manifest.yaml
+target/*
+public/stylesheets/

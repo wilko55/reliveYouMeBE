@@ -27,7 +27,7 @@ module.exports = (app, passport, jwtOptions) => {
     });
 
     app.post('/update-school', passport.authenticate('jwt', { session: false }), (req, res) => {
-        School.findOneAndUpdate(req.user.id, req.body.updatedData, { upsert: true }, (err, school) => {
+        School.findOneAndUpdate({ _id: req.user.id }, req.body.updatedData, { upsert: true }, (err, school) => {
             if (err) {
                 res.status(500).json({ message: 'An error occured', err });
             } else if (school) {

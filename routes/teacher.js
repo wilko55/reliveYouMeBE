@@ -11,7 +11,8 @@ module.exports = (app, passport, jwtOptions) => {
             email: req.body.email,
             name: req.body.name,
             regNumber: req.body.regNumber,
-            password: bCrypt.hashSync(req.body.password, bCrypt.genSaltSync(8), null)
+            password: bCrypt.hashSync(req.body.password, bCrypt.genSaltSync(8), null),
+            availability: {}
         });
 
         newTeacher.save((err, teacher) => {
@@ -45,7 +46,7 @@ module.exports = (app, passport, jwtOptions) => {
 
     app.post('/update-teacher', passport.authenticate('jwt', { session: false }), (req, res) => {
          // TODO validate req.body
-        Teacher.findOneAndUpdate(req.user.id, req.body.updatedData, { upsert: true }, (err, teacher) => {
+        Teacher.findOneAndUpdate({ _id: req.user.id }, req.body.updatedData, { upsert: true }, (err, teacher) => {
             if (err) {
                 res.status(500).json({ message: 'An error occured', err });
             } else if (teacher) {

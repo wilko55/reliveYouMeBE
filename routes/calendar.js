@@ -3,16 +3,15 @@
 const moment = require('moment');
 const Event = require('../data/event');
 const Teacher = require('../data/teacher');
-const _ = require('lodash');
 
 const YEAR = moment().format('YYYY');
 const MONTH = moment().format('MM');
 
-const getDaysInMonth = (month = MONTH, year = YEAR) => {
+const getDaysInMonth = (month, year) => {
     return moment(`${month}-${year}`, 'MM-YYYY').daysInMonth();
 };
 
-const getFirstDayOfMonth = (month = MONTH, year = YEAR) => {
+const getFirstDayOfMonth = (month, year) => {
     const dayNum = moment(`${month}-${year}`, 'MM-YYYY').format('d');
     return parseInt(dayNum);
 };
@@ -41,7 +40,8 @@ const generateMonthArr = (daysInMonth, firstDayOfMonth, month, year) => {
                 'day-num': dayNum,
                 'month-num': date.format('MM')
             },
-            availability: {},
+            availability: {
+            },
             events: []
         });
     }
@@ -51,8 +51,8 @@ const generateMonthArr = (daysInMonth, firstDayOfMonth, month, year) => {
 const mapEventTime = (time) => {
     const map = {
         'All day': 'full',
-        'Afternoon': 'afternoon',
-        'Morning': 'morning'
+        Afternoon: 'afternoon',
+        Morning: 'morning'
     };
     return map[time];
 };
@@ -92,18 +92,17 @@ module.exports = (app, passport) => {
                             calEl.availability[mapEventTime(eventEl.time)] = true;
                             calEl.event = eventEl;
                         }
-
-                        // fill availability
-                        if (availability[calEl.date['day-num']]) {
-                            calEl.availability.free = true;
-                        } else if (Object.keys(calEl.availability).length === 0) {
-                            calEl.availability.unavailable = true;
-                        }
-
-                        if (moment().format('DD') === calEl.date['day-num']) {
-                            calEl.date.today = true;
-                        }
                     });
+                    // fill availability
+                    if (availability[calEl.date['day-num']]) {
+                        calEl.availability.free = true;
+                    } else if (Object.keys(calEl.availability).length === 0) {
+                        calEl.availability.unavailable = true;
+                    }
+
+                    if (moment().format('DD') === calEl.date['day-num']) {
+                        calEl.date.today = true;
+                    }
                 }
             });
             res.status(200).json(calendarData);
@@ -129,13 +128,13 @@ module.exports = (app, passport) => {
                 if (newAvailability[val] === false || newAvailability[val] === true) {
                     delete newAvailability[val];
                 }
-
-                let day;
-                for (let el in newAvailability) {
-                    day = el.split('-')[1];
-                    availability[day.toString()] = newAvailability[el];
-                }
             });
+
+            let day;
+            for (let el in newAvailability) {
+                day = el.split('-')[1];
+                availability[day.toString()] = newAvailability[el];
+            }
 
             // package data in right form
             const key = `${month}-${year}`;
@@ -143,7 +142,7 @@ module.exports = (app, passport) => {
             const toUpdate = {};
             toUpdate[key] = mergedAvailability;
 
-            Teacher.findByIdAndUpdate(req.user.id, { availability: toUpdate }, { upsert: true }, (err, teacher) => {
+            Teacher.findByIdAndUpdate({ _id: req.user.id }, { availability: toUpdate }, { upsert: true }, (err, teacher) => {
                 if (err) {
                     res.status(500).json({ message: 'An error occured', err });
                 } else if (teacher) {
