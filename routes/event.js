@@ -4,26 +4,28 @@ const Event = require('../data/event');
 const moment = require('moment');
 
 module.exports = (app, passport) => {
-    app.post('/event', passport.authenticate('jwt', { session: false }), (req, res) => {
+    app.post('/event/create', passport.authenticate('jwt', { session: false }), (req, res) => {
+        const eventData = req.body.eventData;
+
         let newEvent = new Event({
             teacherId: '',
-            schoolId: '1234',
-            date: req.body.date,
-            time: req.body.time,
-            school: req.body.school,
+            schoolId: req.user.id,
+            date: eventData.date,
+            time: eventData.time,
+            school: eventData.school,
             address: {
-                addressLine1: req.body.addressLine1,
-                addressLine2: req.body.addressLine2 || '',
-                addressLine3: req.body.addressLine3 || '',
-                postcode: req.body.postcode
+                addressLine1: req.user.addressLine1,
+                addressLine2: req.user.addressLine2 || '',
+                addressLine3: req.user.addressLine3 || '',
+                postcode: req.user.postcode
             },
             contact: {
-                name: req.body.contactName,
-                phone: req.body.contactPhone,
-                email: req.body.contactEmail
+                name: req.user.contactName,
+                phone: req.user.contactPhone,
+                email: req.user.contactEmail
             },
-            year: req.body.year,
-            role: req.body.role,
+            year: eventData.year,
+            role: eventData.role,
             lastUpdated: moment().format()
         });
 
