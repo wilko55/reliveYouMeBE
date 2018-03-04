@@ -81,6 +81,7 @@ require('./routes/school.js')(app, passport, jwtOptions);
 require('./routes/calendar.js')(app, passport, jwtOptions);
 
 require('./routes/event.js')(app, passport, jwtOptions);
+require('./routes/request.js')(app, passport, jwtOptions);
 
 const port = 3003;
 

@@ -4,13 +4,16 @@ const Schema = mongoose.Schema;
 const eventSchema = Schema({
     teacherId: String,
     schoolId: String,
-    date: Object,
+    date: Schema.Types.Mixed,
     time: String,
     school: String,
-    address: Object,
-    contact: Object,
+    contact: Schema.Types.Mixed,
     year: String,
-    role: String,
+    description: String,
+    extraInfo: String,
+    subjectsRequired: [],
+    additionalSkillsRequired: [],
+    ageRange: String,
     lastUpdated: Date
 });
 

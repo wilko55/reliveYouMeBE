@@ -1,6 +1,7 @@
 'use strict';
 
 const Event = require('../data/event');
+const Teacher = require('../data/teacher');
 const moment = require('moment');
 
 module.exports = (app, passport) => {
@@ -10,22 +11,24 @@ module.exports = (app, passport) => {
         let newEvent = new Event({
             teacherId: '',
             schoolId: req.user.id,
-            date: eventData.date,
+            date: {
+                day: eventData['date-day'],
+                month: eventData['date-month'],
+                year: eventData['date-year']
+            },
             time: eventData.time,
             school: eventData.school,
-            address: {
-                addressLine1: req.user.addressLine1,
-                addressLine2: req.user.addressLine2 || '',
-                addressLine3: req.user.addressLine3 || '',
-                postcode: req.user.postcode
-            },
             contact: {
-                name: req.user.contactName,
-                phone: req.user.contactPhone,
-                email: req.user.contactEmail
+                name: eventData['contact-name'] || req.user.contact.name,
+                phone: eventData['contact-phoneNumber'] || req.user.contact.phoneNumber,
+                email: eventData['contact-email'] || req.user.contact.email
             },
             year: eventData.year,
             role: eventData.role,
+            subjectsRequired: eventData.subjectsRequired,
+            additionalSkillsRequired: eventData.additionalSkills,
+            ageRange: eventData.ageRange,
+            extraInfo: eventData.extraInfo,
             lastUpdated: moment().format()
         });
 
@@ -34,7 +37,7 @@ module.exports = (app, passport) => {
                 console.log('err!!', err);
                 res.sendStatus(500);
             }
-            res.status(200).json({ message: `Event created with id ${event.id}` });
+            res.status(200).json({ eventId: event.id });
         });
     });
 
@@ -57,20 +60,43 @@ module.exports = (app, passport) => {
         });
     });
 
-    app.get('/events/:schoolOrTeacher/:id', passport.authenticate('jwt', { session: false }), (req, res) => {
-        const id = req.params.id || '';
+    app.get('/event/matches/:eventId', passport.authenticate('jwt', { session: false }), (req, res) => {
+        // get school details from req.user
+        // lookup event from req.params.eventId
+        // find teachers who match criteria
+        const eventId = req.params.eventId;
 
-        const findObj = {};
-        const schoolOrTeacher = req.params.schoolOrTeacher === 'school' ? 'school' : 'teacher';
-        findObj[schoolOrTeacher + 'Id'] = id;
-
-        Event.find(findObj, (err, events) => {
+        Event.findById(eventId, (err, event) => {
             if (err) {
                 res.status(500).json({ message: 'Event not found', err });
-            } else if (events) {
-                res.status(200).json({ message: 'Events found', events });
+            } else if (event) {
+                // find query
+                const availabilityQuery = 'availability.' + event.date.month + '-' + event.date.year + '.' + event.date.day;
+
+                const subjectsQuery = [];
+                event.subjectsRequired.forEach((el) => {
+                    subjectsQuery.push({ specialistSubjects: { $eq: el } });
+                });
+
+                const eventQuery = {
+                    ageRange: { $eq: event.ageRange },
+                    $or: subjectsQuery
+                };
+
+                eventQuery[availabilityQuery] = true;
+                // eventQuery.subjectsRequired = subjectsQuery;
+
+                Teacher.find(eventQuery, (err, matches) => {
+                    if (err) {
+                        res.status(500).json({ message: 'Error finding matches', err });
+                    } else if (matches) {
+                        res.status(200).json({ msg: 'ok', matches });
+                    } else {
+                        res.status(500).json({ message: 'Error finding matches' });
+                    }
+                });
             } else {
-                res.status(500).json({ message: 'Event not found' });
+                res.status(500).json({ message: 'Error finding matches', err });
             }
         });
     });

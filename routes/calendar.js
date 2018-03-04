@@ -76,7 +76,7 @@ module.exports = (app, passport) => {
         const firstDayOfMonth = getFirstDayOfMonth(month, year);
         const calendarData = generateMonthArr(daysInMonth, firstDayOfMonth, month, year);
 
-        const availability = req.user.availability ? req.user.availability[`${month}-${year}`] : {};
+        const availability = req.user.availability && req.user.availability[`${month}-${year}`] ? req.user.availability[`${month}-${year}`] : {};
 
         Event.find({ teacherId: req.user.id, 'date.month': month }, (err, result) => {
             if (err) {
